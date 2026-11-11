@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111a24">
+  <link rel="icon" href="data:,">
+  <title>כל הדרכים מובילות אליכם</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #101820;
+      color: #f3efe6;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --panel: #19242e;
+      --line: #2a3743;
+      --muted: #9daab3;
+      --accent: #e7bd72;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 86% 0%, #233344 0, transparent 38rem), #101820;
+    }
+    button, a { font: inherit; }
+    button, .source-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #394957;
+      border-radius: 9px;
+      background: #202d38;
+      color: #f3efe6;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    button:hover, .source-button:hover { border-color: #8395a3; background: #293946; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .page { width: min(1540px, 100%); margin: 0 auto; padding: 34px clamp(16px, 4vw, 58px) 25px; }
+    .masthead { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 25px; }
+    .eyebrow { color: var(--accent); font-size: 11px; font-weight: 750; letter-spacing: .16em; }
+    h1 { margin: 8px 0 6px; font-size: clamp(30px, 5vw, 53px); font-weight: 760; letter-spacing: -.055em; line-height: 1.08; }
+    .intro { margin: 0; color: #aab4bb; font-size: 15px; line-height: 1.7; }
+    .masthead-mark { flex: 0 0 auto; margin-top: 6px; color: #e4c78f; font-size: 19px; }
+
+    .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 286px; gap: 17px; align-items: stretch; }
+    .map-panel, .sidebar { overflow: hidden; border: 1px solid #2b3945; border-radius: 15px; }
+    .map-panel { border-color: #dfded8; background: #fbfaf6; }
+    .map-panel { position: relative; min-height: 610px; }
+    .map-topline { position: absolute; z-index: 1; top: 17px; right: 19px; left: 19px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+    .map-label { color: #3b4144; font-size: 12px; font-weight: 700; }
+    .map-label span { display: block; margin-top: 4px; color: #777c7d; font-size: 10px; font-weight: 400; }
+    .zoom-controls { display: flex; gap: 6px; pointer-events: auto; }
+    .zoom-controls button { width: 35px; height: 35px; padding: 0; font-size: 19px; }
+    .map-panel .zoom-controls button { border-color: #d7d6d0; background: rgba(251, 250, 246, .94); color: #41474a; }
+    .map-panel .zoom-controls button:hover { border-color: #aaa9a1; background: #fff; }
+    canvas { display: block; width: 100%; height: 100%; min-height: 610px; cursor: crosshair; touch-action: none; }
+    canvas:active { cursor: grabbing; }
+    .map-status { position: absolute; bottom: 13px; right: 16px; left: 16px; display: flex; justify-content: space-between; gap: 12px; color: #747a7b; font-size: 11px; pointer-events: none; }
+    .map-status strong { color: #42494b; font-weight: 650; }
+
+    .sidebar { padding: 20px 17px; }
+    .section-label { margin: 0 0 9px; color: #f3efe6; font-size: 14px; font-weight: 700; }
+    .destination-instructions { margin: 0 0 16px; color: #aab4bb; font-size: 13px; line-height: 1.7; }
+    .destination-card { display: flex; align-items: center; gap: 11px; padding: 12px; border: 1px solid #354450; border-radius: 10px; background: #141e27; }
+    .destination-marker { width: 13px; height: 13px; flex: 0 0 auto; border: 3px solid #f8f2e7; border-radius: 50%; background: #e7bd72; box-shadow: 0 0 0 4px #e7bd722b; }
+    .destination-card strong { display: block; color: #f1e4c9; font-size: 12px; }
+    .destination-card span { display: block; margin-top: 4px; color: #8d9aa4; font-size: 10px; direction: ltr; text-align: right; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0 20px; }
+    .stat { padding: 11px 10px; border: 1px solid #2b3945; border-radius: 10px; background: #141e27; }
+    .stat strong { display: block; color: #f1e4c9; font-size: 18px; font-variant-numeric: tabular-nums; }
+    .stat span { display: block; margin-top: 4px; color: #82909b; font-size: 10px; }
+    .legend-section { padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .branch-heading { margin: 0 0 13px; color: #9daab3; font-size: 11px; font-weight: 600; }
+    .branch-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 8px; margin: 0; padding: 0; list-style: none; }
+    .branch-list li { display: flex; align-items: center; gap: 8px; color: #c5cdd1; font-size: 11px; }
+    .branch-line { width: 21px; height: 4px; flex: 0 0 auto; border-radius: 5px; }
+    .map-actions { display: flex; gap: 7px; margin-top: 19px; }
+    .map-actions button, .source-button { flex: 1; min-height: 38px; padding: 6px; font-size: 11px; }
+    .source-button { width: 100%; margin-top: 8px; }
+    .map-actions .primary { border-color: #d7b87d; background: #d7b87d; color: #19232d; font-weight: 750; }
+    .map-actions .primary:hover { background: #edd29c; }
+    .map-actions button:disabled { cursor: wait; opacity: .55; }
+    .notice { margin: 14px 0 0; color: #81909b; font-size: 10px; line-height: 1.7; }
+    footer { display: flex; justify-content: space-between; gap: 15px; margin-top: 17px; color: #75838d; font-size: 10px; line-height: 1.6; }
+    footer a { color: #b7c1c5; }
+    .error { position: absolute; z-index: 2; inset: 60px 20px auto; padding: 12px; border: 1px solid #b75a54; border-radius: 10px; background: #532b2c; color: #fff1e8; font-size: 13px; line-height: 1.5; }
+    .hidden { display: none; }
+
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: 1fr; }
+      .map-panel, canvas { min-height: min(70vh, 590px); }
+      .sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+      .sidebar > .section-label, .sidebar > .destination-instructions, .sidebar > .destination-card,
+      .sidebar > .stats, .sidebar > .legend-section, .sidebar > .map-actions, .sidebar > .notice { grid-column: 1 / -1; }
+    }
+    @media (max-width: 560px) {
+      .page { padding-top: 23px; }
+      .masthead-mark { display: none; }
+      .intro { font-size: 13px; }
+      .map-panel, canvas { min-height: 57vh; }
+      .sidebar { grid-template-columns: 1fr; }
+      .sidebar > * { grid-column: 1 !important; }
+      footer { flex-direction: column; gap: 3px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div>
+        <div class="eyebrow">מפת ענפי הדרכים של ישראל · שכבת משרד התחבורה</div>
+        <h1>כל הדרכים מובילות אליכם</h1>
+        <p class="intro">בחרו נקודה על המפה, ורשת הדרכים תסתעף אליה. הצבעים מראים את ענפי הרשת — בלי זמני נסיעה.</p>
+      </div>
+      <div class="masthead-mark" aria-hidden="true">כל הדרכים · יעד אחד</div>
+    </header>
+
+    <section class="workspace" aria-label="מפת ענפי הדרכים">
+      <div class="map-panel">
+        <div class="map-topline">
+          <div class="map-label">כל הדרכים מובילות ליעד <span>לחצו על המפה כדי לבחור נקודה</span></div>
+          <div class="zoom-controls" aria-label="שינוי קנה מידה">
+            <button type="button" id="zoom-in" aria-label="התקרבות">+</button>
+            <button type="button" id="zoom-out" aria-label="התרחקות">−</button>
+            <button type="button" id="zoom-reset" aria-label="איפוס תצוגה">↺</button>
+          </div>
+        </div>
+        <canvas id="map" aria-label="מפת ענפי הדרכים של ישראל"></canvas>
+        <div class="error hidden" id="error" role="alert"></div>
+        <div class="map-status"><span>לחיצה בוחרת יעד · גרירה מזיזה · גלגלת להתקרבות</span><strong id="status">טוען רשת…</strong></div>
+      </div>
+
+      <aside class="sidebar">
+        <h2 class="section-label">בחרו יעד על המפה</h2>
+        <p class="destination-instructions">לחצו בכל מקום — בעיר, ביישוב או בשטח פתוח. היעד יוצמד לקטע הכביש הקרוב, והענפים יחושבו מחדש.</p>
+        <div class="destination-card" aria-live="polite">
+          <span class="destination-marker" aria-hidden="true"></span>
+          <div><strong>נקודת היעד</strong><span id="destination-coordinate">טוען…</span></div>
+        </div>
+        <div class="stats" aria-live="polite">
+          <div class="stat"><strong id="stat-segments">—</strong><span>מקטעים בענפי העץ</span></div>
+          <div class="stat"><strong id="stat-junctions">—</strong><span>צמתים שמחוברים ליעד</span></div>
+        </div>
+        <section class="legend-section" aria-labelledby="legend-heading">
+          <h2 class="branch-heading" id="legend-heading">ענפי הרשת · צבע אחד לכל ענף</h2>
+          <ul class="branch-list" id="branch-legend"></ul>
+        </section>
+        <div class="map-actions">
+          <button type="button" class="primary" id="download-png" disabled>הורדת פוסטר PNG</button>
+          <button type="button" id="download-svg" disabled>SVG להדפסה</button>
+        </div>
+        <a class="source-button" href="data/roadnumbers_source.zip" download>הורדת קובץ המקור SHP</a>
+        <p class="notice">הענפים מחושבים לפי מרחק גאוגרפי, לא לפי זמן נסיעה. עובי הקו משקף כמה צמתים בהמשך הענף. צמתים נוצרים ממפגשי הקווים בשכבה; זו המחשה, לא כלי ניווט.</p>
+      </aside>
+    </section>
+
+    <footer>
+      <span>מקור: <a href="https://data.gov.il/dataset/roadnumbers" target="_blank" rel="noreferrer">משרד התחבורה והבטיחות בדרכים · מספרי דרכים ארציות</a> · רישיון CC BY</span>
+      <span>תרשים ענפי הדרכים לישראל · נבנה מנתוני שכבת הכבישים</span>
+    </footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
